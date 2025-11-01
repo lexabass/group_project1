@@ -3,6 +3,7 @@ import {
   MeshCollider,
   RapierRigidBody,
   RigidBody,
+  useBeforePhysicsStep,
   useRapier,
 } from '@react-three/rapier'
 import type RAPIER from '@dimforge/rapier3d-compat'
@@ -53,8 +54,13 @@ const tempPosition = new Vector3()
 export function RaycastVehicle({ input, onReady }: RaycastVehicleProps) {
   const bodyRef = useRef<RapierRigidBody>(null)
   const controllerRef = useRef<RAPIER.DynamicRayCastVehicleController | null>(null)
+  const inputRef = useRef<VehicleInputState>(input)
   const { world, rapier } = useRapier()
   const camera = useThree((state) => state.camera)
+
+  useEffect(() => {
+    inputRef.current = input
+  }, [input])
 
   const wheelPlacement = useMemo(() => {
     const track = MODEL_HALF_WIDTH * 0.92
@@ -84,7 +90,7 @@ export function RaycastVehicle({ input, onReady }: RaycastVehicleProps) {
 
     const controller = world.createVehicleController(chassis)
     controller.indexUpAxis = 1
-    controller.setIndexForwardAxis = 2
+    ;(controller as unknown as { setIndexForwardAxis(axis: number): void }).setIndexForwardAxis(2)
 
     wheelPlacement.positions.forEach((position, index) => {
       controller.addWheel(
@@ -113,7 +119,7 @@ export function RaycastVehicle({ input, onReady }: RaycastVehicleProps) {
     }
   }, [onReady, wheelPlacement, world, rapier])
 
-  useFrame((_, delta) => {
+  useBeforePhysicsStep((physicsWorld) => {
     const controller = controllerRef.current
     const chassis = bodyRef.current
 
@@ -121,9 +127,11 @@ export function RaycastVehicle({ input, onReady }: RaycastVehicleProps) {
       return
     }
 
-    const throttleInput = (input.forward ? 1 : 0) - (input.backward ? 1 : 0)
-    const steerInput = (input.left ? 1 : 0) - (input.right ? 1 : 0)
-    const brakeInput = input.brake ? 1 : 0
+    const state = inputRef.current
+
+    const throttleInput = (state.forward ? 1 : 0) - (state.backward ? 1 : 0)
+    const steerInput = (state.left ? 1 : 0) - (state.right ? 1 : 0)
+    const brakeInput = state.brake ? 1 : 0
 
     if (throttleInput !== 0 || steerInput !== 0 || brakeInput !== 0) {
       chassis.wakeUp()
@@ -163,7 +171,14 @@ export function RaycastVehicle({ input, onReady }: RaycastVehicleProps) {
       controller.setWheelSteering(wheelIndex, steerAngleRange * clampedSteer)
     })
 
-    controller.updateVehicle(delta)
+    controller.updateVehicle(physicsWorld.timestep)
+  })
+
+  useFrame((_, delta) => {
+    const chassis = bodyRef.current
+    if (!chassis) {
+      return
+    }
 
     const translation = chassis.translation()
     const rotation = chassis.rotation()
