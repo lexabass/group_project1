@@ -92,7 +92,7 @@ export function RaycastVehicle({ input, onReady }: RaycastVehicleProps) {
 
     const controller = world.createVehicleController(chassis)
     controller.indexUpAxis = 1
-    ;(controller as unknown as { setIndexForwardAxis(axis: number): void }).setIndexForwardAxis(2)
+    ;(controller as unknown as { indexForwardAxis: number }).indexForwardAxis = 2
 
     wheelPlacement.positions.forEach((position, index) => {
       controller.addWheel(
