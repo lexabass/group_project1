@@ -1,3 +1,4 @@
+// Entry point for the racing prototype: sets up scene, controls and UI overlays.
 import { KeyboardControls, useKeyboardControls } from '@react-three/drei'
 import type { KeyboardControlsEntry } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'

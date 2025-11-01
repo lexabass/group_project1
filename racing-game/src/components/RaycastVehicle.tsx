@@ -1,3 +1,5 @@
+// Raycast-based vehicle controller that wraps the Rapier DynamicRayCastVehicleController
+// and keeps the chase camera in sync with the chassis transform.
 import { useFrame, useThree } from '@react-three/fiber'
 import {
   MeshCollider,

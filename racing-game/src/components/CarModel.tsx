@@ -1,6 +1,7 @@
 /*
 Auto-generated reference: https://github.com/pmndrs/gltfjsx
 Source asset: public/models/car.glb (CC-BY-NC-SA-4.0)
+This wrapper clones the optimized GLB so the same model can back both render and physics meshes.
 */
 
 import { useGLTF } from '@react-three/drei'
