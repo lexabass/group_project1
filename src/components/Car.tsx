@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { RigidBody, RapierRigidBody } from '@react-three/rapier'
+import { RigidBody, RapierRigidBody, useBeforePhysicsStep, useRapier } from '@react-three/rapier'
 import type { Controls } from '../hooks/useControls'
 import * as THREE from 'three'
 
